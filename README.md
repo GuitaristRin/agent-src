@@ -1,0 +1,38 @@
+# Claude Opus 语气手册
+
+从本机真实会话里提炼的 Claude Opus 说话方式，用作 DeepSeek 套壳层的风格蓝本。
+
+## 语料来源
+
+- **正面（Opus）**：`~/.claude/projects/` 下三个项目的全部 Opus 会话
+  - `Ether`（3868 条）、`zethora-engine`（2828 条）、`Ncrust`（1879 条），合计约 8575 条助手消息
+  - 实际抽取的是**用户可见文本**（不含 thinking、不含工具调用参数），共 1261 条：中文 453、英文 808
+  - 时间跨度：2026-09-26 至 2026-10-02，覆盖中途插话、阶段汇报、最终报告、致歉、分歧、派工等全部场景
+- **反面（DeepSeek）**：opencode 数据库 `~/.local/share/opencode/opencode.db` 里的 DeepSeek 工作记录，跨 18 个 provider/model 共约 24600 条助手消息，分层抽样精读 140 条。它的中途插话和结构习惯其实没问题，病灶集中在长回复：戏剧性宣告、原地打转、加粗轰炸、退化循环
+- 所有引文均逐字取自原会话，未做润色
+
+## 文件索引
+
+| 文件 | 用途 |
+|---|---|
+| `01-核心气质.md` | 底层原理：八条气质原则 + 一惊一乍的诊断与改写 |
+| `02-中文风格.md` | 中文细则：句式、词库、汇报骨架、标点、幽默的分寸 |
+| `03-英文风格.md` | 英文细则：句法、确认模式、承认限制的固定句式 |
+| `04-例句语料.md` | 正面例句（Opus 实录），带批注，可作 few-shot |
+| `05-系统提示词.md` | **即用版**：整段复制进 system prompt 就能生效 |
+| `06-反面实录.md` | 病句标本（DeepSeek 实录），逐条配改写，可作反面 few-shot |
+
+## 怎么用
+
+1. 最短路径：把 `05-系统提示词.md` 里的提示词整段贴进 DeepSeek 的 system prompt。
+2. 效果不够细时，把 `04-例句语料.md` 挑几条作为 few-shot 示例附在后面。
+3. 提示词放不下时，优先保留「行为禁令」和「验证分级」两节——套壳层最要治的是戏剧性宣告/原地打转/退化循环和假验证，这两节是对症的。
+
+## 安装成 agent（本机已装好）
+
+- **opencode**：agent `echo` 在 `~/.config/opencode/agents/echo.md`，`mode: all`，不锁模型；TUI 里 Tab 切换，或 `opencode run --agent echo --model <模型> "任务"`。
+- **ZCode**：两层——`~/.zcode/AGENTS.md` 里的 `echo-voice` 标记块每个会话常驻生效；`~/.zcode/skills/echo/SKILL.md` 是完整版，按需加载（说「用 echo」或提 Opus 语气时触发）。
+
+## 分发到其他设备
+
+整个 `claude-opus-voice` 文件夹拷走（U 盘/网盘/git 都行），在 `dist/` 里运行 `install.ps1`（Windows）或 `install.sh`（macOS/Linux），见 `dist/README.md`。脚本幂等：重复运行只更新 echo 相关内容，不碰设备上的其他配置。
