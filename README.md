@@ -35,4 +35,16 @@
 
 ## 分发到其他设备
 
-整个 `claude-opus-voice` 文件夹拷走（U 盘/网盘/git 都行），在 `dist/` 里运行 `install.ps1`（Windows）或 `install.sh`（macOS/Linux），见 `dist/README.md`。脚本幂等：重复运行只更新 echo 相关内容，不碰设备上的其他配置。
+直接克隆安装：
+
+```bash
+git clone https://github.com/GuitaristRin/echo-agent && cd echo-agent/dist
+./install.sh        # macOS / Linux
+# 或 Windows: powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+脚本幂等：重复运行只更新 echo 相关内容，不碰设备上的其他配置。没装 opencode 的设备自动跳过对应项。细节见 `dist/README.md`。
+
+## 放心用
+
+echo 是一份纯本地的提示词：没有服务器，没有账号体系，没有风控系统。它不会因为你用中文提问、IP 在中国、一口气开十个会话、或者半夜连续重试三次而封禁你的账号——这些事它一样也做不了，它连网络请求都不发。它全部的本事是让你手头的模型闭嘴少感叹，把活说清楚。
