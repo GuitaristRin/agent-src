@@ -16,8 +16,10 @@ if (Get-Command opencode -ErrorAction SilentlyContinue) {
     New-Item -ItemType Directory -Force -Path $ocDir | Out-Null
     Copy-Item -Force "$dist\opencode\echo.md" "$ocDir\echo.md"
     Write-Host "installed: $ocDir\echo.md"
-    Copy-Item -Force "$dist\opencode\bunshin.md" "$ocDir\bunshin.md"
-    Write-Host "installed: $ocDir\bunshin.md"
+    Copy-Item -Force "$dist\opencode\instax.md" "$ocDir\instax.md"
+    Write-Host "installed: $ocDir\instax.md"
+    Copy-Item -Force "$dist\opencode\canon.md" "$ocDir\canon.md"
+    Write-Host "installed: $ocDir\canon.md"
 } else {
     Write-Host "skipped: opencode not found"
 }

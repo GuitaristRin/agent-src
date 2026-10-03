@@ -15,9 +15,11 @@ echo "installed: $HOME/.zcode/skills/echo/SKILL.md"
 if command -v opencode >/dev/null 2>&1; then
     mkdir -p "$HOME/.config/opencode/agents"
     cp "$DIST/opencode/echo.md" "$HOME/.config/opencode/agents/echo.md"
+    cp "$DIST/opencode/canon.md" "$HOME/.config/opencode/agents/canon.md"
+    echo "installed: $HOME/.config/opencode/agents/canon.md"
     echo "installed: $HOME/.config/opencode/agents/echo.md"
-    cp "$DIST/opencode/bunshin.md" "$HOME/.config/opencode/agents/bunshin.md"
-    echo "installed: $HOME/.config/opencode/agents/bunshin.md"
+    cp "$DIST/opencode/instax.md" "$HOME/.config/opencode/agents/instax.md"
+    echo "installed: $HOME/.config/opencode/agents/instax.md"
 else
     echo "skipped: opencode not found"
 fi
