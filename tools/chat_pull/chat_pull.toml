@@ -1,0 +1,38 @@
+# chat_pull 配置——过滤规则都在这里，脚本本身不含任何私人信息
+# 输出一律落在仓库外（默认 ~/Documents/chat-corpus/），原文永不进 agent-src
+
+[output]
+# 导出目录（建议保持仓库外）
+dir = "C:/Users/mc158/Documents/chat-corpus"
+# 已知发送者名字（手动复制路径下用来认领自己的消息；微信/QQ 昵称都列上）
+own_names = ["Takahashi Rinta"]
+
+[wechat]
+# 自动探测 PyWxDump / 留痕(MemoTrace) 的导出目录，手动导出的填这里
+export_roots = [
+    # "C:/Users/mc158/Documents/chat-corpus/raw/wxdump",
+]
+# 已解密的 MSG 库（可选；3.9 架构的 SQLite 直接查询用）
+decrypted_dbs = [
+    # "C:/Users/mc158/Documents/chat-corpus/raw/MSG0.db",
+]
+# 指定群聊：群名或 roomId（xxx@chatroom）都行，模糊匹配
+groups = [
+    # "某群名",
+]
+# 时间范围（可选，空 = 不限），格式 YYYY-MM-DD
+start_date = ""
+end_date = ""
+
+[qq]
+# 已解密的 nt_msg.db（QQ NT 数据库需要先用开源工具解密，见 README）
+decrypted_dbs = [
+    # "C:/Users/mc158/Documents/chat-corpus/raw/nt_msg.db",
+]
+# 自己的 QQ 号（过滤本人消息用）
+own_uin = ""
+groups = [
+    # "某群名或群号",
+]
+start_date = ""
+end_date = ""
