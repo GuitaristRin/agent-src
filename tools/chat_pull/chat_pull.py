@@ -207,41 +207,106 @@ def load_qq_nt(db: str, qq: dict) -> dict[str, list]:
     return buckets
 
 # ---------- 适配层 D：手动复制的纯文本 ----------
+def _read_text(fp: str) -> str:
+    raw = open(fp, "rb").read()
+    for enc in ("utf-8", "gbk"):
+        try:
+            return raw.decode(enc).replace("\r\n", "\n")
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace").replace("\r\n", "\n")
+
 def load_manual_txt(fp: str, own_names: set[str]) -> dict[str, list]:
-    """微信/QQ PC 端「多选→复制」的文本：头行 = 发送者名 + 日期(时间)，后续行 = 内容，空行分块。"""
+    """三种模式自动识别（编码自动回退 utf-8→gbk）：
+    A. 微信年月日模式：块 = 昵称行 + 「2026年10月03日 20:47」行 + 内容行；
+    B. 头行模式：块首行 = 名字 + ISO 日期时间（PC 复制格式），按 own_names 认领；
+    C. 裸文本模式：QQ 多选复制——无发送者行，消息以 3+ 换行分隔，
+       「2026/10/01」日期行做日界；内容默认全部属于文件主人。"""
+    raw = _read_text(fp)
+    key = os.path.splitext(os.path.basename(fp))[0]
     msgs: list[dict] = []
-    sender, dt, buf = '', '', []
+    ISO_HEAD = re.compile(r"^\s*\S.{0,18}\s+\d{4}[-/]\d{1,2}[-/]\d{1,2}\s+\d{1,2}:\d{2}(?::\d{2})?\s*$")
+    WXD = re.compile(r"^(20\d{2})年(\d{1,2})月(\d{1,2})日\s*(\d{1,2}:\d{2}(?::\d{2})?)?$")
 
-    def flush():
-        nonlocal sender, dt, buf
-        if dt and buf and sender in own_names:
-            ts = 0
-            for fmt in ('%Y-%m-%d %H:%M:%S', '%Y/%m/%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M'):
+    if re.search(r"\d{4}年\d{1,2}月\d{1,2}日\s*\d{1,2}:\d{2}", raw):
+        # A. 微信年月日：昵称行 + 日期行 + 内容
+        pending = ""
+        state = {"dt": None, "buf": []}
+        def flush_w():
+            if state["dt"] and state["buf"] and pending and pending in own_names:
+                text = keep_text("\n".join(state["buf"]).strip())
+                if text:
+                    msgs.append({"ts": int(state["dt"].timestamp() * 1000),
+                                 "dt": state["dt"].strftime("%m-%d %H:%M"), "text": redact(text)})
+            state["dt"], state["buf"] = None, []
+        for line in raw.split("\n"):
+            if not line.strip():
+                flush_w(); continue
+            m = WXD.match(line.strip())
+            if m:
+                y, mo, dd, t = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4) or "00:00"
                 try:
-                    ts = int(datetime.datetime.strptime(dt.strip(), fmt).timestamp() * 1000); break
-                except ValueError: pass
-            text = keep_text('\n'.join(buf).strip())
-            if text:
-                msgs.append({'ts': ts, 'dt': dt[-14:], 'text': redact(text)})
-        sender, dt, buf = '', '', []
+                    state["dt"] = datetime.datetime(int(y), mo, dd, *map(int, t.split(":")))
+                except ValueError:
+                    state["dt"] = None
+                state["buf"] = []
+            elif state["dt"] is None and len(line.strip()) <= 20:
+                pending = line.strip()
+            elif state["dt"] is not None:
+                state["buf"].append(line.strip())
+        flush_w()
+        return {key: sorted(msgs, key=lambda x: x["ts"])} if msgs else {}
 
-    for line in io.open(fp, encoding='utf-8', errors='replace'):
-        line = line.rstrip('\n')
-        if not line.strip():
-            flush(); continue
-        m = re.match(r'^\s*(?P<name>.+?)\s*[ \[（]?\s*(?P<y>\d{4}[-/]\d{1,2}[-/]\d{1,2})\s*(?P<t>\d{1,2}:\d{2}(?::\d{2})?)?', line)
-        if m and m.group('y'):
-            flush()
-            sender = m.group('name').strip()
-            dt = (m.group('y') + ' ' + (m.group('t') or '00:00')).replace('/', '-')
-            buf = []
-        else:
-            buf.append(line.strip())
-    flush()
-    if msgs:
-        key = os.path.splitext(os.path.basename(fp))[0]
-        return {key: sorted(msgs, key=lambda x: x['ts'])}
-    return {}
+    if ISO_HEAD.search(raw):
+        # B. 头行模式
+        state = {"sender": "", "dt": "", "buf": []}
+        def flush_h():
+            sender, dt, buf = state["sender"], state["dt"], state["buf"]
+            if dt and buf and sender in own_names:
+                ts = 0
+                for fmt in ("%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M"):
+                    try:
+                        ts = int(datetime.datetime.strptime(dt.strip(), fmt).timestamp() * 1000); break
+                    except ValueError: pass
+                text = keep_text("\n".join(buf).strip())
+                if text:
+                    msgs.append({"ts": ts, "dt": dt[-14:], "text": redact(text)})
+            state["sender"], state["dt"], state["buf"] = "", "", []
+        for line in raw.split("\n"):
+            if not line.strip():
+                flush_h(); continue
+            m = re.match(r"^\s*(?P<name>.+?)\s*[ \[（]?\s*(?P<y>\d{4}[-/]\d{1,2}[-/]\d{1,2})\s*(?P<t>\d{1,2}:\d{2}(?::\d{2})?)?", line)
+            if m and m.group("y"):
+                flush_h()
+                state["sender"] = m.group("name").strip()
+                state["dt"] = (m.group("y") + " " + (m.group("t") or "00:00")).replace("/", "-")
+                state["buf"] = []
+            else:
+                state["buf"].append(line.strip())
+        flush_h()
+        return {key: sorted(msgs, key=lambda x: x["ts"])} if msgs else {}
+
+    # C. 裸文本模式（QQ 多选复制）
+    day, k = "", 0
+    for block in re.split(r"\n{3,}", raw):
+        b = block.strip("\n").strip()
+        if not b: continue
+        lines = b.split("\n")
+        if len(lines) >= 1 and re.fullmatch(r"(20\d{2})[/年.](\d{1,2})[/月.](\d{1,2})\s*日?", lines[0].strip()):
+            y, mm, dd = re.findall(r"\d+", lines[0])
+            day = f"{y}-{int(mm):02d}-{int(dd):02d}"
+            lines = lines[1:]
+            b = "\n".join(lines).strip()
+            if not b: continue
+        text = keep_text(b)
+        if not text: continue
+        ts = k
+        if day:
+            try: ts = int(datetime.datetime.strptime(day, "%Y-%m-%d").timestamp() * 1000) + k
+            except ValueError: pass
+        k += 1
+        msgs.append({"ts": ts, "dt": day or f"blk{k:04d}", "text": text})
+    return {key: msgs} if msgs else {}
 
 # ---------- inspect ----------
 def inspect(db: str):
