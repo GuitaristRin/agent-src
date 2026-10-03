@@ -24,7 +24,9 @@ fi
 
 # 3. ZCode 用户级 AGENTS.md（存在则原地更新标记块，不存在则新建）
 AGENTS="$HOME/.zcode/AGENTS.md"
-if [ -f "$AGENTS" ] && grep -q '<!-- echo-voice:start -->' "$AGENTS"; then
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "warning: python3 缺失，跳过 AGENTS.md 自动更新；请手动把 AGENTS-block.md 合并进 $AGENTS"
+elif [ -f "$AGENTS" ] && grep -q '<!-- echo-voice:start -->' "$AGENTS"; then
     python3 - "$AGENTS" "$DIST/AGENTS-block.md" <<'PY'
 import re, sys
 agents_path, block_path = sys.argv[1], sys.argv[2]
