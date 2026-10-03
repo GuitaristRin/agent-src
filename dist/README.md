@@ -9,7 +9,7 @@
 | `skills/echo/SKILL.md` | `~/.zcode/skills/echo/` | ZCode 按需加载的完整语气规则（说「用 echo」或触发关键词时生效） |
 | `AGENTS-block.md` | 合并进 `~/.zcode/AGENTS.md` | ZCode 每个会话**常驻**的语气核心（真正的"套壳"层） |
 | `opencode/echo.md` | `~/.config/opencode/agents/echo.md` | opencode 的 `echo` agent（不锁模型，TUI 里 Tab 切换） |
-| `opencode/critic.md` | `~/.config/opencode/agents/critic.md` | opencode 的 `critic` agent：只读评审（语体取自作者本人，依据见 `user-voice/`） |
+| `opencode/bunshin.md` | `~/.config/opencode/agents/bunshin.md` | opencode 的 `bunshin`（分身）：拿来聊天玩的 agent，作者语体闲聊位；锐评只对物，不批判用户（v4 起替代 critic） |
 | `install.ps1` | — | Windows 上一键安装以上几样 |
 | `install.sh` | — | macOS / Linux 上一键安装以上几样 |
 
@@ -35,7 +35,7 @@ chmod +x install.sh && ./install.sh
 ## 卸载
 
 - ZCode：删 `~/.zcode/skills/echo/`，再从 `~/.zcode/AGENTS.md` 删掉 `<!-- echo-voice:start -->` 到 `<!-- echo-voice:end -->` 之间的块。
-- opencode：删 `~/.config/opencode/agents/echo.md` 和 `~/.config/opencode/agents/critic.md`。
+- opencode：删 `~/.config/opencode/agents/echo.md` 和 `~/.config/opencode/agents/bunshin.md`。
 
 ## 可选：跨工具共用
 

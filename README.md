@@ -26,7 +26,7 @@
 | `04-例句语料.md` | 正面例句（Opus 实录），带批注，可作 few-shot |
 | `05-系统提示词.md` | **即用版**：整段复制进 system prompt 就能生效 |
 | `06-反面实录.md` | 病句标本（DeepSeek 实录），逐条配改写，可作反面 few-shot |
-| `user-voice/用户语体分析.md` | 作者本人语体分析（Critic 的语体依据），含粗口专节、防戏仿护栏、跨机合并规程 |
+| `user-voice/用户语体分析.md` | 作者本人语体分析（bunshin/echo 的语体依据），含粗口专节、防戏仿护栏、跨机合并规程 |
 
 ## 怎么用
 
@@ -37,7 +37,7 @@
 ## 安装成 agent（本机已装好）
 
 - **opencode**：agent `echo` 在 `~/.config/opencode/agents/echo.md`，`mode: all`，不锁模型；TUI 里 Tab 切换，或 `opencode run --agent echo --model <模型> "任务"`。
-- **opencode**：agent `critic`（`critic.md`）——娱乐性评审 agent，只读不编码，对项目做通读评价；语体取自作者本人（`user-voice/`），带防戏仿护栏。
+- **opencode**：agent `bunshin`（分身，`bunshin.md`）——**拿来聊天玩的 agent**（v4，critic 评审位已退役重定位）：闲聊档为主，有立场有口味，锐评只对物、批判永不指向用户；语体配方取自 `user-voice/`，带情绪函数与防戏仿护栏。
 - **ZCode**：两层——`~/.zcode/AGENTS.md` 里的 `echo-voice` 标记块每个会话常驻生效；`~/.zcode/skills/echo/SKILL.md` 是完整版，按需加载（说「用 echo」或提 Opus 语气时触发）。
 
 ## 分发到其他设备

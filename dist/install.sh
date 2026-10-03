@@ -16,8 +16,8 @@ if command -v opencode >/dev/null 2>&1; then
     mkdir -p "$HOME/.config/opencode/agents"
     cp "$DIST/opencode/echo.md" "$HOME/.config/opencode/agents/echo.md"
     echo "installed: $HOME/.config/opencode/agents/echo.md"
-    cp "$DIST/opencode/critic.md" "$HOME/.config/opencode/agents/critic.md"
-    echo "installed: $HOME/.config/opencode/agents/critic.md"
+    cp "$DIST/opencode/bunshin.md" "$HOME/.config/opencode/agents/bunshin.md"
+    echo "installed: $HOME/.config/opencode/agents/bunshin.md"
 else
     echo "skipped: opencode not found"
 fi
