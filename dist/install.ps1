@@ -10,12 +10,14 @@ if (Test-Path "$HOME\.zcode\skills\echo") { Remove-Item -Recurse -Force "$HOME\.
 Copy-Item -Recurse "$dist\skills\echo" "$HOME\.zcode\skills\echo"
 Write-Host "installed: $HOME\.zcode\skills\echo\SKILL.md"
 
-# 2. opencode agent（没装 opencode 就跳过）
+# 2. opencode agents（没装 opencode 就跳过）
 if (Get-Command opencode -ErrorAction SilentlyContinue) {
     $ocDir = "$HOME\.config\opencode\agents"
     New-Item -ItemType Directory -Force -Path $ocDir | Out-Null
     Copy-Item -Force "$dist\opencode\echo.md" "$ocDir\echo.md"
     Write-Host "installed: $ocDir\echo.md"
+    Copy-Item -Force "$dist\opencode\critic.md" "$ocDir\critic.md"
+    Write-Host "installed: $ocDir\critic.md"
 } else {
     Write-Host "skipped: opencode not found"
 }

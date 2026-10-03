@@ -11,11 +11,13 @@ rm -rf "$HOME/.zcode/skills/echo"
 cp -r "$DIST/skills/echo" "$HOME/.zcode/skills/echo"
 echo "installed: $HOME/.zcode/skills/echo/SKILL.md"
 
-# 2. opencode agent（没装 opencode 就跳过）
+# 2. opencode agents（没装 opencode 就跳过）
 if command -v opencode >/dev/null 2>&1; then
     mkdir -p "$HOME/.config/opencode/agents"
     cp "$DIST/opencode/echo.md" "$HOME/.config/opencode/agents/echo.md"
     echo "installed: $HOME/.config/opencode/agents/echo.md"
+    cp "$DIST/opencode/critic.md" "$HOME/.config/opencode/agents/critic.md"
+    echo "installed: $HOME/.config/opencode/agents/critic.md"
 else
     echo "skipped: opencode not found"
 fi
